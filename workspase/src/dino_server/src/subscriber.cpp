@@ -52,9 +52,9 @@ int main(int argc, char ** argv)
     ros::init(argc, argv, "dino_name_generator_server");
     ros::NodeHandle n;
 
-    service = n.advertiseService("dino_name_generator", &get_dino_name);
+    service = n.advertiseService("dino_name_generator", get_dino_name);
     pub = n.advertise<std_msgs::String>("dino_name_topic", 10);    
-    sub = n.subscribe("dino_name_topic", 10, &reader);
+    sub = n.subscribe("dino_name_topic", 10, reader);
     
     ROS_INFO_STREAM("Server is ready\n");
     ros::spin();
@@ -63,8 +63,12 @@ int main(int argc, char ** argv)
 }
 
 
-// Functions
-
+                 // Functions //
+                 
+// Selects a random ending from the array [ENDINGS_ARR] 
+//  and glues it with [raw_word] (the word received
+//  in the request to the server) after writing
+//  it with a capital letter
 std::string random_dino_name(std::string raw_word)
 {
     srand(time(NULL));
@@ -73,29 +77,34 @@ std::string random_dino_name(std::string raw_word)
     return raw_word + ENDINGS_ARR[rand_num];
 }
 
+// Records the generated dinosaur name as a
+//  server response and publishes it to a topic
 bool get_dino_name(dino_service::DinoGenerator::Request &req,
                    dino_service::DinoGenerator::Response &res)
 {
     res.dino_name = random_dino_name(req.word);
 
-    // Topic
+    // publishing to a topic
     std_msgs::String d_name;
     d_name.data = res.dino_name;
     pub.publish(d_name);
     
     return true;
-
 }
 
-std::string get_dino_fact(std::string name)  //TODO
+// Selects a random fact about dinosaurs
+//  from the array [FACTS_ARR] and glues it
+//  with [name] (dinosaur name)
+std::string get_dino_fact(std::string name)
 {
     srand(time(NULL));
     unsigned int rand_num = rand() % 10;
     return name + FACTS_ARR[rand_num];
 }
 
-void reader(const std_msgs::String & message) // TODO
+// Processes the message received by the
+//  subscriber and prints it to the console
+void reader(const std_msgs::String & message)
 {
     ROS_INFO_STREAM(get_dino_fact(message.data).c_str());
 }
-
