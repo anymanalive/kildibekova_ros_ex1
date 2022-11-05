@@ -1,0 +1,8 @@
+prefix=/home/smbawesome/Документы/kildibekova_ros_ex1/workspase/devel
+
+Name: dino_server
+Description: Description of dino_server
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

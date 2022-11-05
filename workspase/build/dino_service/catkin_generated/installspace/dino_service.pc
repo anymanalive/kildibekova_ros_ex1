@@ -1,0 +1,8 @@
+prefix=/home/smbawesome/Документы/kildibekova_ros_ex1/workspase/install
+
+Name: dino_service
+Description: Description of dino_service
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: 

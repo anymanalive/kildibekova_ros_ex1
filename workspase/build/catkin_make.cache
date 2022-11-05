@@ -1,0 +1,2 @@
+dino_server:dino_service
+-DCATKIN_DEVEL_PREFIX=/home/smbawesome/Документы/kildibekova_ros_ex1/workspase/devel -DCMAKE_INSTALL_PREFIX=/home/smbawesome/Документы/kildibekova_ros_ex1/workspase/install -G Unix Makefiles
