@@ -6,7 +6,6 @@ ros::ServiceServer service;
 ros::Publisher pub;
 ros::Subscriber sub;
 
-
 const std::string ENDINGS_ARR[10] = {"saurus", "raptor", "pteryx",
                                      "stacator", "rex", "ceratops",
                                      "gnathus", "roides", "draco",
@@ -40,11 +39,11 @@ const std::string FACTS_ARR[10] = {" was a very bulky animal with a"
                                    " Late Cretaceous period",
                                    " was one of the smallest dinosaurs"};
 
-std::string random_dino_name(std::string raw_word);
-bool get_dino_name(dino_service::DinoGenerator::Request &req,
-                   dino_service::DinoGenerator::Response &res);
-std::string get_dino_fact(std::string name);
-void reader(const std_msgs::String & mesage);
+std::string generateDinoName(std::string raw_word);
+bool replyAndPublishDN(dino_service::DinoGenerator::Request &req,
+                       dino_service::DinoGenerator::Response &res);
+std::string generateDinoFact(std::string dino_name);
+void processesAndPrint(const std_msgs::String &sub_dino_name);
 
 
 int main(int argc, char ** argv)
@@ -52,24 +51,23 @@ int main(int argc, char ** argv)
     ros::init(argc, argv, "dino_name_generator_server");
     ros::NodeHandle n;
 
-    service = n.advertiseService("dino_name_generator", get_dino_name);
-    pub = n.advertise<std_msgs::String>("dino_name_topic", 10);    
-    sub = n.subscribe("dino_name_topic", 10, reader);
-    
+    service = n.advertiseService("dino_name_generator", replyAndPublishDN);
+    pub = n.advertise<std_msgs::String>("dino_name_topic", 10);
+    sub = n.subscribe("dino_name_topic", 10, processesAndPrint);
+
     ROS_INFO_STREAM("Server is ready\n");
     ros::spin();
-    
     return 0;
 }
 
 
-                 // Functions //
-                 
-// Selects a random ending from the array [ENDINGS_ARR] 
+              // Functions //
+
+// Selects a random ending from the array [ENDINGS_ARR]
 //  and glues it with [raw_word] (the word received
 //  in the request to the server) after writing
 //  it with a capital letter
-std::string random_dino_name(std::string raw_word)
+std::string generateDinoName(std::string raw_word)
 {
     srand(time(NULL));
     unsigned int rand_num = rand() % 10;
@@ -79,32 +77,33 @@ std::string random_dino_name(std::string raw_word)
 
 // Records the generated dinosaur name as a
 //  server response and publishes it to a topic
-bool get_dino_name(dino_service::DinoGenerator::Request &req,
-                   dino_service::DinoGenerator::Response &res)
+bool replyAndPublishDN(dino_service::DinoGenerator::Request &req,
+                       dino_service::DinoGenerator::Response &res)
 {
-    res.dino_name = random_dino_name(req.word);
+    res.dino_name = generateDinoName(req.word);
 
     // publishing to a topic
-    std_msgs::String d_name;
-    d_name.data = res.dino_name;
-    pub.publish(d_name);
-    
+    std_msgs::String pub_dino_name;
+    pub_dino_name.data = res.dino_name;
+    pub.publish(pub_dino_name);
+
     return true;
 }
 
 // Selects a random fact about dinosaurs
 //  from the array [FACTS_ARR] and glues it
-//  with [name] (dinosaur name)
-std::string get_dino_fact(std::string name)
+//  with [dino_name]
+std::string generateDinoFact(std::string dino_name)
 {
     srand(time(NULL));
     unsigned int rand_num = rand() % 10;
-    return name + FACTS_ARR[rand_num];
+    return dino_name + FACTS_ARR[rand_num];
 }
 
-// Processes the message received by the
+// Processes the dinosaurs name received by the
 //  subscriber and prints it to the console
-void reader(const std_msgs::String & message)
+void processesAndPrint(const std_msgs::String &sub_dino_name)
 {
-    ROS_INFO_STREAM(get_dino_fact(message.data).c_str());
+    ROS_INFO_STREAM(generateDinoFact(sub_dino_name.data).c_str());
 }
+
